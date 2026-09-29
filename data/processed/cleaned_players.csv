@@ -1,0 +1,5 @@
+player_id,name,role,base_price,batting_strike_rate,batting_average,bowling_economy,wickets_per_match,rating
+101,Virat Kohli,Batter,200.0,135.0,37.2,0.0,0.0,169.8
+102,Jasprit Bumrah,Bowler,200.0,45.0,10.5,6.8,1.5,89.75
+103,Rashid Khan,All-Rounder,150.0,125.0,20.1,6.3,1.2,132.65
+104,MS Dhoni,Wicketkeeper,150.0,137.0,39.0,0.0,0.0,173.3
