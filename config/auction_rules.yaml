@@ -1,0 +1,12 @@
+auction_settings:
+  total_purse_crores: 100.0
+  min_squad_size: 18
+  max_squad_size: 25
+  max_overseas_players: 8
+
+playing_xi_constraints:
+  min_batters: 3
+  min_bowlers: 3
+  min_allrounders: 1
+  min_wicketkeepers: 1
+  max_overseas_in_xi: 4
