@@ -2,28 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>IPL Auction Optimization Dashboard</title>
+    <title>IPL Dynamic Interactive Optimization Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #0f172a; color: #e2e8f0; margin: 0; padding: 30px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #1e293b; padding-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 28px; color: #38bdf8; letter-spacing: -0.5px; }
+        .header { margin-bottom: 25px; border-bottom: 2px solid #1e293b; padding-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 28px; color: #38bdf8; }
         .header p { margin: 5px 0 0 0; color: #94a3b8; font-size: 14px; }
         
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
-        .card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
-        .card-title { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .card-value { font-size: 28px; font-weight: 700; color: #f8fafc; margin-top: 8px; }
+        .section-title { font-size: 13px; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px; }
+        
+        .controls-container { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .controls-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+        
+        .role-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        .control-group label { font-size: 11px; color: #38bdf8; font-weight: 600; text-transform: uppercase; }
+        .control-group input { width: 100%; accent-color: #38bdf8; cursor: pointer; }
+        .control-group span { font-size: 14px; font-weight: bold; color: #f8fafc; }
+
+        .budget-card { border-color: #4ade80; background: #1e293b; }
+        .budget-card label { color: #4ade80; }
+        .budget-card input { accent-color: #4ade80; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .card { background: #1e293b; border-radius: 12px; padding: 18px; border: 1px solid #334155; }
+        .card-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 600; }
+        .card-value { font-size: 22px; font-weight: 700; color: #f8fafc; margin-top: 6px; }
         .card-value.highlight { color: #38bdf8; }
         .card-value.success { color: #4ade80; }
+        .card-value.danger { color: #f87171; }
 
-        .table-container { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+        .table-container { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
         th { background-color: #0f172a; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 12px; padding: 16px; border-bottom: 1px solid #334155; }
         td { padding: 14px 16px; border-bottom: 1px solid #334155; color: #cbd5e1; }
-        tr:hover { background-color: #334155; transition: background-color 0.2s ease; }
+        tr:hover { background-color: #334155; }
         
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
         .badge-batter { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8; }
@@ -35,191 +52,164 @@
 <body>
     <div class="container">
         <div class="header">
+            <h1>🏏 Dynamic IPL Squad & Budget Optimization Dashboard</h1>
+            <p>Adjust role constraints and budget cap in real time to re-optimize the playing XI squad.</p>
+        </div>
+
+        <div class="controls-container">
+            <!-- Section 1: Role Constraints -->
             <div>
-                <h1>?? IPL Squad Optimization Analytics</h1>
-                <p>Optimal Playing XI Selection Engine Output</p>
+                <div class="section-title">⚙️ Minimum Role Requirements</div>
+                <div class="controls-card">
+                    <div class="role-grid">
+                        <div class="control-group">
+                            <label>Min Batters: <span id="val-bat">3</span></label>
+                            <input type="range" id="input-bat" min="1" max="6" value="3" oninput="updateOptimization()">
+                        </div>
+                        <div class="control-group">
+                            <label>Min Bowlers: <span id="val-bowl">3</span></label>
+                            <input type="range" id="input-bowl" min="1" max="6" value="3" oninput="updateOptimization()">
+                        </div>
+                        <div class="control-group">
+                            <label>Min All-Rounders: <span id="val-ar">1</span></label>
+                            <input type="range" id="input-ar" min="0" max="4" value="1" oninput="updateOptimization()">
+                        </div>
+                        <div class="control-group">
+                            <label>Min Wicketkeepers: <span id="val-wk">1</span></label>
+                            <input type="range" id="input-wk" min="1" max="3" value="1" oninput="updateOptimization()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Budget Control -->
+            <div>
+                <div class="section-title">💰 Financial Purse Limit</div>
+                <div class="controls-card budget-card">
+                    <div class="control-group">
+                        <label>Max Budget Cap: ₹<span id="val-budget">1500</span> L</label>
+                        <input type="range" id="input-budget" min="500" max="2500" step="50" value="1500" oninput="updateOptimization()">
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="metrics-grid">
-            <div class="card">
-                <div class="card-title">Selected Playing Squad</div>
-                <div class="card-value">11 Players</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Total Cumulative Rating</div>
-                <div class="card-value highlight">1259.32 Pts</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Total Squad Base Cost</div>
-                <div class="card-value success">?1325.0 Lakhs</div>
-            </div>
+            <div class="card"><div class="card-title">Squad Size</div><div class="card-value" id="m-size">11 Players</div></div>
+            <div class="card"><div class="card-title">Total Rating</div><div class="card-value highlight" id="m-rating">0.00 Pts</div></div>
+            <div class="card"><div class="card-title">Budget Allocation</div><div class="card-value success" id="m-cost">₹0.0 / ₹0.0 L</div></div>
+            <div class="card"><div class="card-title">Role Composition</div><div class="card-value" style="font-size: 14px; margin-top: 8px;" id="m-comp">-</div></div>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>ID</th>
-                        <th>Player Name</th>
-                        <th>Role</th>
-                        <th>Base Price</th>
-                        <th>Strike Rate</th>
-                        <th>Batting Avg</th>
-                        <th>Economy</th>
-                        <th>Wkts / Match</th>
-                        <th>Rating</th>
+                        <th>Rank</th><th>ID</th><th>Player Name</th><th>Role</th><th>Base Price</th>
+                        <th>Strike Rate</th><th>Batting Avg</th><th>Economy</th><th>Wkts/Match</th><th>Rating</th>
                     </tr>
                 </thead>
-                <tbody>
-                    
-        <tr>
-            <td><strong>#1</strong></td>
-            <td>149</td>
-            <td style="font-weight: 600; color: #ffffff;">Rahul Tewatia</td>
-            <td><span class="badge badge-bowler">Bowler</span></td>
-            <td>?50.0 L</td>
-            <td>109.84</td>
-            <td>11.29</td>
-            <td>7.34</td>
-            <td>2.06</td>
-            <td style="font-weight: bold; color: #00e676;">122.12</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#2</strong></td>
-            <td>107</td>
-            <td style="font-weight: 600; color: #ffffff;">Hardik Pandya</td>
-            <td><span class="badge badge-bowler">Bowler</span></td>
-            <td>?200.0 L</td>
-            <td>98.23</td>
-            <td>9.19</td>
-            <td>6.7</td>
-            <td>2.14</td>
-            <td style="font-weight: bold; color: #00e676;">122.05</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#3</strong></td>
-            <td>133</td>
-            <td style="font-weight: 600; color: #ffffff;">Sam Curran</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?100.0 L</td>
-            <td>132.26</td>
-            <td>32.05</td>
-            <td>8.32</td>
-            <td>1.49</td>
-            <td style="font-weight: bold; color: #00e676;">118.17</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#4</strong></td>
-            <td>150</td>
-            <td style="font-weight: 600; color: #ffffff;">Shahrukh Khan</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?200.0 L</td>
-            <td>152.85</td>
-            <td>26.42</td>
-            <td>9.71</td>
-            <td>1.47</td>
-            <td style="font-weight: bold; color: #00e676;">117.27</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#5</strong></td>
-            <td>117</td>
-            <td style="font-weight: 600; color: #ffffff;">Jos Buttler</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?100.0 L</td>
-            <td>127.22</td>
-            <td>25.38</td>
-            <td>7.32</td>
-            <td>1.38</td>
-            <td style="font-weight: bold; color: #00e676;">116.40</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#6</strong></td>
-            <td>114</td>
-            <td style="font-weight: 600; color: #ffffff;">Mohammed Shami</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?75.0 L</td>
-            <td>153.96</td>
-            <td>29.11</td>
-            <td>7.77</td>
-            <td>0.87</td>
-            <td style="font-weight: bold; color: #00e676;">113.22</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#7</strong></td>
-            <td>103</td>
-            <td style="font-weight: 600; color: #ffffff;">Rashid Khan</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?200.0 L</td>
-            <td>154.1</td>
-            <td>32.49</td>
-            <td>7.59</td>
-            <td>0.76</td>
-            <td style="font-weight: bold; color: #00e676;">112.44</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#8</strong></td>
-            <td>132</td>
-            <td style="font-weight: 600; color: #ffffff;">Pat Cummins</td>
-            <td><span class="badge badge-bowler">Bowler</span></td>
-            <td>?200.0 L</td>
-            <td>94.68</td>
-            <td>14.9</td>
-            <td>7.23</td>
-            <td>1.81</td>
-            <td style="font-weight: bold; color: #00e676;">111.44</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#9</strong></td>
-            <td>129</td>
-            <td style="font-weight: 600; color: #ffffff;">Quinton de Kock</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?50.0 L</td>
-            <td>126.95</td>
-            <td>23.81</td>
-            <td>7.69</td>
-            <td>1.23</td>
-            <td style="font-weight: bold; color: #00e676;">110.22</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#10</strong></td>
-            <td>137</td>
-            <td style="font-weight: 600; color: #ffffff;">Rinku Singh</td>
-            <td><span class="badge badge-bowler">Bowler</span></td>
-            <td>?50.0 L</td>
-            <td>100.27</td>
-            <td>13.15</td>
-            <td>7.13</td>
-            <td>1.65</td>
-            <td style="font-weight: bold; color: #00e676;">109.65</td>
-        </tr>
-        
-        <tr>
-            <td><strong>#11</strong></td>
-            <td>120</td>
-            <td style="font-weight: 600; color: #ffffff;">Sunil Narine</td>
-            <td><span class="badge badge-allrounder">All-Rounder</span></td>
-            <td>?100.0 L</td>
-            <td>140.68</td>
-            <td>26.41</td>
-            <td>7.07</td>
-            <td>0.7</td>
-            <td style="font-weight: bold; color: #00e676;">106.34</td>
-        </tr>
-        
-                </tbody>
+                <tbody id="squad-tbody"></tbody>
             </table>
         </div>
     </div>
+
+    <script>
+        const allPlayers = [{"player_id":101,"name":"Virat Kohli","role":"Bowler","base_price":200.0,"batting_strike_rate":85.5,"batting_average":13.46,"bowling_economy":8.29,"wickets_per_match":1.53,"rating":95.04},{"player_id":102,"name":"Jasprit Bumrah","role":"Batter","base_price":100.0,"batting_strike_rate":158.98,"batting_average":38.83,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":75.24},{"player_id":103,"name":"Rashid Khan","role":"All-Rounder","base_price":200.0,"batting_strike_rate":154.1,"batting_average":32.49,"bowling_economy":7.59,"wickets_per_match":0.76,"rating":112.44},{"player_id":104,"name":"MS Dhoni","role":"Batter","base_price":150.0,"batting_strike_rate":147.52,"batting_average":25.16,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":66.56},{"player_id":105,"name":"Rohit Sharma","role":"Batter","base_price":100.0,"batting_strike_rate":147.53,"batting_average":28.21,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":67.47},{"player_id":106,"name":"KL Rahul","role":"Batter","base_price":100.0,"batting_strike_rate":137.21,"batting_average":47.61,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":69.17},{"player_id":107,"name":"Hardik Pandya","role":"Bowler","base_price":200.0,"batting_strike_rate":98.23,"batting_average":9.19,"bowling_economy":6.7,"wickets_per_match":2.14,"rating":122.05},{"player_id":108,"name":"Rishabh Pant","role":"Wicketkeeper","base_price":75.0,"batting_strike_rate":134.64,"batting_average":28.22,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":62.32},{"player_id":109,"name":"Shreyas Iyer","role":"Batter","base_price":150.0,"batting_strike_rate":139.81,"batting_average":27.81,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":64.27},{"player_id":110,"name":"Suryakumar Yadav","role":"Bowler","base_price":100.0,"batting_strike_rate":107.28,"batting_average":9.81,"bowling_economy":8.49,"wickets_per_match":1.37,"rating":97.66},{"player_id":111,"name":"Shubman Gill","role":"Bowler","base_price":75.0,"batting_strike_rate":97.03,"batting_average":8.22,"bowling_economy":9.03,"wickets_per_match":1.54,"rating":94.63},{"player_id":112,"name":"Yuzvendra Chahal","role":"Bowler","base_price":150.0,"batting_strike_rate":97.94,"batting_average":14.45,"bowling_economy":6.77,"wickets_per_match":1.24,"rating":100.66},{"player_id":113,"name":"Ravindra Jadeja","role":"Batter","base_price":200.0,"batting_strike_rate":137.49,"batting_average":31.24,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":64.37},{"player_id":114,"name":"Mohammed Shami","role":"All-Rounder","base_price":75.0,"batting_strike_rate":153.96,"batting_average":29.11,"bowling_economy":7.77,"wickets_per_match":0.87,"rating":113.22},{"player_id":115,"name":"Trent Boult","role":"Batter","base_price":50.0,"batting_strike_rate":164.41,"batting_average":42.76,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":78.59},{"player_id":116,"name":"David Warner","role":"Batter","base_price":100.0,"batting_strike_rate":128.95,"batting_average":41.36,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":63.99},{"player_id":117,"name":"Jos Buttler","role":"All-Rounder","base_price":100.0,"batting_strike_rate":127.22,"batting_average":25.38,"bowling_economy":7.32,"wickets_per_match":1.38,"rating":116.4},{"player_id":118,"name":"Kagiso Rabada","role":"Bowler","base_price":75.0,"batting_strike_rate":82.86,"batting_average":10.6,"bowling_economy":8.51,"wickets_per_match":1.8,"rating":98.77},{"player_id":119,"name":"Glenn Maxwell","role":"Bowler","base_price":100.0,"batting_strike_rate":96.84,"batting_average":10.68,"bowling_economy":9.42,"wickets_per_match":2.02,"rating":105.34},{"player_id":120,"name":"Sunil Narine","role":"All-Rounder","base_price":100.0,"batting_strike_rate":140.68,"batting_average":26.41,"bowling_economy":7.07,"wickets_per_match":0.7,"rating":106.34},{"player_id":121,"name":"Sanju Samson","role":"Batter","base_price":50.0,"batting_strike_rate":134.15,"batting_average":36.7,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":64.67},{"player_id":122,"name":"Ishant Sharma","role":"Wicketkeeper","base_price":200.0,"batting_strike_rate":138.5,"batting_average":30.84,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":64.65},{"player_id":123,"name":"Kuldeep Yadav","role":"Wicketkeeper","base_price":100.0,"batting_strike_rate":142.37,"batting_average":40.33,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":69.05},{"player_id":124,"name":"Axar Patel","role":"Bowler","base_price":50.0,"batting_strike_rate":83.16,"batting_average":11.2,"bowling_economy":7.16,"wickets_per_match":1.5,"rating":98.32},{"player_id":125,"name":"Mohammed Siraj","role":"Wicketkeeper","base_price":75.0,"batting_strike_rate":128.05,"batting_average":32.99,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":61.12},{"player_id":126,"name":"Marcus Stoinis","role":"Wicketkeeper","base_price":50.0,"batting_strike_rate":130.7,"batting_average":33.98,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":62.47},{"player_id":127,"name":"Liam Livingstone","role":"All-Rounder","base_price":50.0,"batting_strike_rate":134.14,"batting_average":22.47,"bowling_economy":8.5,"wickets_per_match":1.04,"rating":103.9},{"player_id":128,"name":"Nicholas Pooran","role":"Bowler","base_price":75.0,"batting_strike_rate":90.13,"batting_average":14.6,"bowling_economy":7.47,"wickets_per_match":1.62,"rating":103.58},{"player_id":129,"name":"Quinton de Kock","role":"All-Rounder","base_price":50.0,"batting_strike_rate":126.95,"batting_average":23.81,"bowling_economy":7.69,"wickets_per_match":1.23,"rating":110.22},{"player_id":130,"name":"Faf du Plessis","role":"All-Rounder","base_price":200.0,"batting_strike_rate":133.55,"batting_average":20.55,"bowling_economy":8.71,"wickets_per_match":1.05,"rating":102.28},{"player_id":131,"name":"Mitchell Starc","role":"Batter","base_price":200.0,"batting_strike_rate":135.53,"batting_average":39.59,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":66.09},{"player_id":132,"name":"Pat Cummins","role":"Bowler","base_price":200.0,"batting_strike_rate":94.68,"batting_average":14.9,"bowling_economy":7.23,"wickets_per_match":1.81,"rating":111.44},{"player_id":133,"name":"Sam Curran","role":"All-Rounder","base_price":100.0,"batting_strike_rate":132.26,"batting_average":32.05,"bowling_economy":8.32,"wickets_per_match":1.49,"rating":118.17},{"player_id":134,"name":"Travis Head","role":"Bowler","base_price":50.0,"batting_strike_rate":84.52,"batting_average":11.56,"bowling_economy":8.59,"wickets_per_match":2.03,"rating":105.08},{"player_id":135,"name":"Heinrich Klaasen","role":"Batter","base_price":150.0,"batting_strike_rate":120.75,"batting_average":36.78,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":59.33},{"player_id":136,"name":"Arshdeep Singh","role":"Batter","base_price":150.0,"batting_strike_rate":162.32,"batting_average":34.14,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":75.17},{"player_id":137,"name":"Rinku Singh","role":"Bowler","base_price":50.0,"batting_strike_rate":100.27,"batting_average":13.15,"bowling_economy":7.13,"wickets_per_match":1.65,"rating":109.65},{"player_id":138,"name":"Yashasvi Jaiswal","role":"Bowler","base_price":150.0,"batting_strike_rate":85.25,"batting_average":14.88,"bowling_economy":8.05,"wickets_per_match":1.31,"rating":91.06},{"player_id":139,"name":"Tilak Varma","role":"Wicketkeeper","base_price":150.0,"batting_strike_rate":138.96,"batting_average":40.36,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":67.69},{"player_id":140,"name":"Shivam Dube","role":"Batter","base_price":50.0,"batting_strike_rate":135.71,"batting_average":41.7,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":66.79},{"player_id":141,"name":"Ruturaj Gaikwad","role":"Wicketkeeper","base_price":50.0,"batting_strike_rate":141.05,"batting_average":29.18,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":65.17},{"player_id":142,"name":"Abhishek Sharma","role":"Batter","base_price":150.0,"batting_strike_rate":146.13,"batting_average":33.56,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":68.52},{"player_id":143,"name":"Varun Chakravarthy","role":"Wicketkeeper","base_price":50.0,"batting_strike_rate":125.13,"batting_average":30.25,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":59.13},{"player_id":144,"name":"Harshal Patel","role":"Bowler","base_price":100.0,"batting_strike_rate":99.56,"batting_average":9.57,"bowling_economy":8.64,"wickets_per_match":1.28,"rating":91.5},{"player_id":145,"name":"Avesh Khan","role":"Batter","base_price":150.0,"batting_strike_rate":136.49,"batting_average":42.12,"bowling_economy":0.0,"wickets_per_match":0.0,"rating":67.23},{"player_id":146,"name":"Rahul Chahar","role":"All-Rounder","base_price":50.0,"batting_strike_rate":141.28,"batting_average":27.63,"bowling_economy":8.78,"wickets_per_match":0.83,"rating":101.65},{"player_id":147,"name":"Riyan Parag","role":"Bowler","base_price":200.0,"batting_strike_rate":94.6,"batting_average":14.34,"bowling_economy":7.8,"wickets_per_match":1.42,"rating":98.64},{"player_id":148,"name":"Devdutt Padikkal","role":"Bowler","base_price":50.0,"batting_strike_rate":85.86,"batting_average":13.06,"bowling_economy":7.34,"wickets_per_match":1.03,"rating":87.31},{"player_id":149,"name":"Rahul Tewatia","role":"Bowler","base_price":50.0,"batting_strike_rate":109.84,"batting_average":11.29,"bowling_economy":7.34,"wickets_per_match":2.06,"rating":122.12},{"player_id":150,"name":"Shahrukh Khan","role":"All-Rounder","base_price":200.0,"batting_strike_rate":152.85,"batting_average":26.42,"bowling_economy":9.71,"wickets_per_match":1.47,"rating":117.27}];
+
+        function updateOptimization() {
+            const minBat = parseInt(document.getElementById('input-bat').value);
+            const minBowl = parseInt(document.getElementById('input-bowl').value);
+            const minAR = parseInt(document.getElementById('input-ar').value);
+            const minWK = parseInt(document.getElementById('input-wk').value);
+            const maxBudget = parseFloat(document.getElementById('input-budget').value);
+
+            document.getElementById('val-bat').innerText = minBat;
+            document.getElementById('val-bowl').innerText = minBowl;
+            document.getElementById('val-ar').innerText = minAR;
+            document.getElementById('val-wk').innerText = minWK;
+            document.getElementById('val-budget').innerText = maxBudget;
+
+            const available = allPlayers.slice();
+            const selectedIndices = new Set();
+            const squad = [];
+
+            function getTopByRole(roleName, count) {
+                const sub = available.filter((p, i) => p.role === roleName && !selectedIndices.has(i));
+                sub.sort((a, b) => b.rating - a.rating);
+                for (let p of sub) {
+                    const currentCost = squad.reduce((sum, item) => sum + item.base_price, 0);
+                    if (currentCost + p.base_price <= maxBudget) {
+                        const idx = available.indexOf(p);
+                        selectedIndices.add(idx);
+                        squad.push(p);
+                        if (squad.filter(item => item.role === roleName).length >= count) break;
+                    }
+                }
+            }
+
+            getTopByRole('Wicketkeeper', minWK);
+            getTopByRole('Batter', minBat);
+            getTopByRole('Bowler', minBowl);
+            getTopByRole('All-Rounder', minAR);
+
+            const remainingNeeded = 11 - squad.length;
+            if (remainingNeeded > 0) {
+                const remaining = available.filter((p, i) => !selectedIndices.has(i));
+                remaining.sort((a, b) => b.rating - a.rating);
+                for (let p of remaining) {
+                    const currentCost = squad.reduce((sum, item) => sum + item.base_price, 0);
+                    if (currentCost + p.base_price <= maxBudget) {
+                        const idx = available.indexOf(p);
+                        selectedIndices.add(idx);
+                        squad.push(p);
+                        if (squad.length >= 11) break;
+                    }
+                }
+            }
+
+            squad.sort((a, b) => b.rating - a.rating);
+
+            const totalRating = squad.reduce((sum, p) => sum + p.rating, 0);
+            const totalCost = squad.reduce((sum, p) => sum + p.base_price, 0);
+            
+            const counts = { Batter: 0, Bowler: 0, 'All-Rounder': 0, Wicketkeeper: 0 };
+            squad.forEach(p => counts[p.role] = (counts[p.role] || 0) + 1);
+
+            document.getElementById('m-size').innerText = squad.length + " Players";
+            document.getElementById('m-rating').innerText = totalRating.toFixed(2) + " Pts";
+            
+            const costElem = document.getElementById('m-cost');
+            costElem.innerText = "₹" + totalCost.toFixed(1) + " / ₹" + maxBudget.toFixed(0) + " L";
+            if (totalCost > maxBudget) {
+                costElem.className = "card-value danger";
+            } else {
+                costElem.className = "card-value success";
+            }
+
+            document.getElementById('m-comp').innerHTML = `🏏 ${counts.Batter} Bat | 🎯 ${counts.Bowler} Bowl<br>⚡ ${counts['All-Rounder']} AR | 🧤 ${counts.Wicketkeeper} WK`;
+
+            const tbody = document.getElementById('squad-tbody');
+            tbody.innerHTML = '';
+            squad.forEach((p, idx) => {
+                const roleClass = p.role.toLowerCase().replace('-', '').replace(' ', '');
+                const row = `<tr>
+                    <td><strong>#${idx + 1}</strong></td>
+                    <td>${p.player_id}</td>
+                    <td style="font-weight: 600; color: #ffffff;">${p.name}</td>
+                    <td><span class="badge badge-${roleClass}">${p.role}</span></td>
+                    <td>₹${p.base_price.toFixed(1)} L</td>
+                    <td>${p.batting_strike_rate}</td>
+                    <td>${p.batting_average}</td>
+                    <td>${p.bowling_economy}</td>
+                    <td>${p.wickets_per_match}</td>
+                    <td style="font-weight: bold; color: #00e676;">${p.rating.toFixed(2)}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        updateOptimization();
+    </script>
 </body>
 </html>
